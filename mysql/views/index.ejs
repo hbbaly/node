@@ -11,9 +11,30 @@
     这里是首页
     
     <% for(var i in data){ %>
-        <%= data[i] %>
+        <%= data[i].id%>
+        <%= data[i].userName %>
+        <%= data[i].password %>
     <%}%>
-
     <% include footer.ejs %>
+
+    <input type="text" class="userName">
+<input type="text" class="password">
+<input type="submit" class="submit">
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+        $('.submit').click(function () { 
+            $.ajax({
+                url:'/ajax',
+                type:'get',
+                data:{
+                    userName:$('.userName').val(),
+                    password:$('.password').val()
+                },
+                success:function(data){
+                    console.log(data)
+                }
+            })
+         })
+    </script>
 </body>
 </html>
