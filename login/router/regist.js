@@ -3,7 +3,7 @@ const express = require('express'),
     sql = require('../mysql/mysql');
 // router.all();
 router.get('/',(req,res) =>{
-    res.render('login.ejs')
+    res.render('regist.ejs')
 });
 router.post('/',(req,res)=>{
     console.log(req.body)
@@ -15,7 +15,7 @@ router.post('/',(req,res)=>{
                     res.render('err.ejs')
                 }
                 res.locals.result = "<h1>成功</h1>"
-                res.render('login.ejs')
+                res.render('regist.ejs')
             })
         }else{
             res.render('err.ejs');
