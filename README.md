@@ -235,4 +235,67 @@ const test4 = () => {
   return promise
 }
 ```
+## 编写捕获异常中间件
+`middleware/execption.js`
+```js
+const catchError = async (ctx, next) => {
+  try {
+    await next()
+  } catch (error) {
+    throw Error('服务器异常')
+  }
+}
+module.exports = catchError
+```
 
+`app.js`使用中间价
+
+```js
+const catchError = require('./middleware/execption')
+app.use(catchError)
+```
+## 整理错误信息
+
+自定义报错信息
+`app/api/test/5.js`
+
+```js
+const Router = require('koa-router')
+const router = new Router()
+
+router.get('/error', (ctx, next) => {
+    const error = new Error('错误')
+    error.errorCode = 10001
+    error.status = 400
+    error.requestUrl = ctx.method + ctx.path
+    throw error
+})
+module.exports = router
+```
+`middleware/execption.js`中间件
+
+```js
+const catchError = async (ctx, next) => {
+  try {
+    await next()
+  } catch (error) {
+    // 自定义异常错误信息包括：
+    // {
+    //   error_code: // 错误对应状态码
+    //   error_status: // http状态码
+    //   request-url: // 请求url
+    //   error_message: // 请求错误信息
+    // }
+    console.log(error, 'error')
+    if (error.errorCode){
+      ctx.body = {
+        code: error.errorCode,
+        msg: error.message,
+        request: error.requestUrl
+      }
+      ctx.status = error.status
+    }
+  }
+}
+module.exports = catchError
+```
