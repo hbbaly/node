@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon app.js"
+    "dev": "cross-env NODE_ENV=development  nodemon app.js"
   },
   "author": "",
   "license": "ISC",
@@ -16,6 +16,7 @@
     "validator": "^11.1.0"
   },
   "devDependencies": {
+    "cross-env": "^5.2.0",
     "nodemon": "^1.19.1",
     "require-directory": "^2.1.1"
   }
