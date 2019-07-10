@@ -7,7 +7,7 @@
 const validator = require('validator')
 const {
     ParameterException
-} = require('./http-exception')
+} = require('./http-execption')
 const {
     get,
     last,
@@ -16,7 +16,7 @@ const {
 } = require("lodash")
 const {
     findMembers
-} = require('./util')
+} = require('./utils')
 
 
 class LinValidator {

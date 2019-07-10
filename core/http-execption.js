@@ -6,7 +6,7 @@ class HttpExecption extends Error{
     this.status = status
   }
 }
-class ParamsError extends HttpExecption{
+class ParameterException extends HttpExecption{
   constructor (msg="参数异常", code=10002, status=412){
     super()
     this.message = msg
@@ -17,6 +17,7 @@ class ParamsError extends HttpExecption{
 class AuthError extends HttpExecption{
   constructor (msg="拒绝访问", code=10003, status = 401){
     super()
+    console.log(msg, code, status, 'chbjdhb')
     this.message = msg
     this.errorCode = code
     this.status = status
@@ -24,6 +25,6 @@ class AuthError extends HttpExecption{
 }
 module.exports = {
   HttpExecption,
-  ParamsError,
+  ParameterException,
   AuthError
 }
