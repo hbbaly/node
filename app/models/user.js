@@ -1,6 +1,6 @@
 const { sequelize } = require('../../core/db')
 
-const { Sequlize, Model } = require('sequelize')
+const { Sequelize, Model } = require('sequelize')
 
 class User extends Model {
 
@@ -8,15 +8,15 @@ class User extends Model {
 // 初始化用户属性
 User.init({
   id: {
-    type: Sequlize.INTEGER,
+    type: Sequelize.INTEGER,
     primaryKey: true,
     autoIncrement: true
   }, 
-  nickName: Sequlize.STRING,
-  password: Sequlize.STRING,
-  email: Sequlize.STRING,
+  nickName: Sequelize.STRING,
+  password: Sequelize.STRING,
+  email: Sequelize.STRING,
   openId: {
-    type: Sequlize.STRING(64), // 最长64
+    type: Sequelize.STRING(64), // 最长64
     unique: true
   }
 },{
