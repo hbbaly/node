@@ -8,6 +8,7 @@ const sequelize = new Sequelize(dbName, user, password,{
   port,
   logging:true,
 })
+sequelize.sync()
 
 module.exports = {
   sequelize

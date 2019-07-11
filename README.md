@@ -483,4 +483,43 @@ console.log(config)
 npm i -D sequelize
 ```
 
+配置数据库参数
+
+`config/development.config.js`
+
+```js
+module.exports = {
+  HOST: 'localhost:3000/dev',
+  API_SERVER: 'localhost:3000/dev',
+  API_SSO: 'localhost:3000/dev',
+  IMG_SERVER: 'localhost:3000/dev',
+  DATABASE:{
+    dbName:'hbbaly',
+    host:'localhost',
+    port:3306,
+    user:'root',
+    password:'123456',
+  },
+}
+```
+
 使用`sequelize`连接数据库， 并配置数据库的参数
+
+`core/db.js`
+
+```js
+const Sequelize = require('sequelize')
+
+const { dbName, user, password, port, host} = require('../config/index').DATABASE
+
+const sequelize = new Sequelize(dbName, user, password,{
+  dialect:'mysql',
+  host,
+  port,
+  logging:true,
+})
+
+module.exports = {
+  sequelize
+}
+```

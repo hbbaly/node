@@ -4,6 +4,7 @@ const parser = require('koa-bodyparser')
 const InitManger = require('./core/init')
 
 const catchError = require('./middleware/execption')
+require('./app/models/user')
 app.use(catchError)
 
 InitManger.initCore(app)
