@@ -474,3 +474,13 @@ console.log(config)
 //   API_SSO: 'localhost:3000/dev',
 //   IMG_SERVER: 'localhost:3000/dev' }
 ```
+
+## Navicat管理MySql
+
+安装`sequelize`
+
+```js
+npm i -D sequelize
+```
+
+使用`sequelize`连接数据库， 并配置数据库的参数
