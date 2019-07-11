@@ -20,5 +20,6 @@ User.init({
     unique: true
   }
 },{
-  sequelize
+  sequelize,
+  tableName: 'user'
 })
