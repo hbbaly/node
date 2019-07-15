@@ -1,5 +1,6 @@
 const config = require('../../../config/index')
-console.log(config)
+  console.log(process.env.NODE_ENV)
+  console.log(config)
 // { name: 'node-case',
 //   version: '1.0.0',
 //   HOST: 'localhost:3000/dev',

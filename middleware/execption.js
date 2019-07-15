@@ -1,3 +1,4 @@
+const {HttpExecption} = require('../core/http-execption.js')
 const catchError = async (ctx, next) => {
   try {
     await next()
@@ -9,8 +10,14 @@ const catchError = async (ctx, next) => {
     //   request-url: // 请求url
     //   error_message: // 请求错误信息
     // }
-    console.log(error, 'error')
-    if (error.errorCode){
+    const isHttpException = error instanceof HttpExecption
+    const isDev = process.env.NODE_ENV === 'development'
+
+    if(isDev && !isHttpException){
+        throw error
+    }
+ 
+    if (isHttpException){
       ctx.body = {
         code: error.errorCode,
         msg: error.message,

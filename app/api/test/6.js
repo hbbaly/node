@@ -3,7 +3,6 @@ const router = new Router()
 const {PositiveIntegerValidator} = require('../../../lib/validator.js')
 const config = require('../../../config/index')
 router.get('/error/:id',async (ctx, next) => {
-  console.log(config)
   const path = ctx.params, 
         query = ctx.request.query, 
         header = ctx.request.header, 
