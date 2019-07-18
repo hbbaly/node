@@ -5,7 +5,7 @@ const app = new Koa()
 const InitManger = require('./core/init')
 
 const catchError = require('./middleware/execption')
-require('./app/models/user')
+// require('./app/models/user')
 app.use(parser())
 
 app.use(catchError)
