@@ -17,6 +17,8 @@
     "validator": "^11.1.0"
   },
   "devDependencies": {
+    "bcrypt": "^3.0.6",
+    "bcryptjs": "^2.4.3",
     "cross-env": "^5.2.0",
     "nodemon": "^1.19.1",
     "require-directory": "^2.1.1",
