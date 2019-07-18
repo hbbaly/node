@@ -19,7 +19,7 @@ User.init({
     set (val) {
       const salt = bcrypt.genSaltSync(10)
       const pwd = bcrypt.hashSync(val, salt)
-      this.setDataValue(pwd)
+      this.setDataValue('password', pwd)
     }
   },
   email: {
