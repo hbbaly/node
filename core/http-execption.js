@@ -17,14 +17,22 @@ class ParameterException extends HttpExecption{
 class AuthError extends HttpExecption{
   constructor (msg="拒绝访问", code=10003, status = 401){
     super()
-    console.log(msg, code, status, 'chbjdhb')
     this.message = msg
     this.errorCode = code
     this.status = status
   }
 }
+class Success extends HttpExecption{
+  constructor(msg, errorCode){
+      super()
+      this.code = 201
+      this.msg = msg || 'ok'
+      this.errorCode = errorCode || 0
+  }
+}
 module.exports = {
   HttpExecption,
   ParameterException,
-  AuthError
+  AuthError,
+  Success
 }

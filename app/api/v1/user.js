@@ -3,6 +3,7 @@ const router = new Router({
   prefix: '/v1/user'
 })
 const {User} = require('../../models/user')
+const {success} = require('../../../lib/helper.js')
 const { RegisterValidator } = require('../../../lib/validator')
 router.post('/register', async (ctx, next) => {
   const v = await new RegisterValidator().validate(ctx)
@@ -14,6 +15,7 @@ router.post('/register', async (ctx, next) => {
     password: v.get('body.password2')
   }
   User.create(user)
+  success()
 })
 
 module.exports = router
