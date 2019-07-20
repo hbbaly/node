@@ -1,5 +1,5 @@
 class HttpExecption extends Error{
-  constructor (msg="服务器异常", code=10001, status=500){
+  constructor (msg, code=10001, status=500){
     super()
     this.message = msg
     this.errorCode = code
@@ -23,16 +23,25 @@ class AuthError extends HttpExecption{
   }
 }
 class Success extends HttpExecption{
-  constructor(msg, errorCode){
+  constructor(msg='ok', code=200){
       super()
-      this.code = 201
-      this.msg = msg || 'ok'
-      this.errorCode = errorCode || 0
+      this.message = msg
+      this.errorCode = code
+      // this.status = status
+  }
+}
+class AuthFailed extends HttpExecption {
+  constructor(msg, errorCode) {
+    super()
+    this.msg = msg || '授权失败'
+    this.errorCode = errorCode || 10004
+    this.status = 401
   }
 }
 module.exports = {
   HttpExecption,
   ParameterException,
   AuthError,
-  Success
+  Success,
+  AuthFailed
 }
