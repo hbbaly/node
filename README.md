@@ -831,3 +831,101 @@ async function emailLogin(account, secret) {
 }
 module.exports = router
 ```
+
+## jsonwebtoken
+
+安装`jsonwebtoken`
+
+```js
+npm i -D jsonwebtoken
+```
+`core/utils.js`
+
+```js
+const jwt = require('jsonwebtoken')
+const config  = require('../config/index')
+const generateToken = function(uid, scope){
+    const secretKey = config.secret.secretKey
+    const expiresIn = config.secret.expiresIn
+    // 使用jsonwebtoken生成token
+    const token = jwt.sign({
+        uid,
+        scope
+    },secretKey,{
+        expiresIn
+    })
+    return token
+}
+module.exports = {
+  generateToken,
+}
+```
+
+## HttpBasicAuth传递令牌及token验证，权限的设定
+
+安装`basic-auth`
+
+```js
+npm i -D basic-auth
+```
+
+编写 `Forbbiden`报错类
+`core/http-execption.js`
+```js
+class Forbbiden extends HttpExecption {
+  constructor(msg, errorCode) {
+    super()
+    this.message = msg || '禁止访问'
+    this.errorCode = errorCode || 10006
+    this.status = 403
+  }
+}
+```
+
+`middleware/auth.js`编写中间件
+
+```js
+const basicAuth = require('basic-auth')
+const jwt = require('jsonwebtoken')
+const config = require('../config/index')
+const { Forbbiden } = require('../core/http-execption')
+class Auth {
+  constructor (level) {
+    this.level = level // 传入的权限值
+    Auth.USER = 8  // 8 代表普通用户
+    Auth.ADMIN = 16 // 管理员
+    Auth.SUPER_ADMIN = 32 // 超级管理员
+  }
+  get m () {
+    return async (ctx, next) => {
+      // 获取token
+      const userToken = basicAuth(ctx.req) 
+      let errMsg = 'token不合法'
+      let decode
+      // 验证token
+      if (!userToken || !userToken.name) {
+        throw new Forbbiden(errMsg)
+      }
+      try {
+        // 获取生成token的参数
+        decode = jwt.verify(userToken.name, config.secret.secretKey)
+      } catch (error) {
+        // token过期
+        if (error.ame === 'TokenExpiredError') errMsg = 'token已过期'
+        //token不合法
+        throw new Forbbiden(errMsg)
+      }
+      // 判断是不是满足普通用户权限
+      if (Auth.USER < this.level) throw new Forbbiden('权限不足')
+      ctx.auth = {
+        uid:decode.uid,
+        scope:decode.scope
+      }
+      await next()
+    }
+  }
+}
+module.exports = {
+  Auth
+}
+```

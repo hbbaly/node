@@ -33,9 +33,17 @@ class Success extends HttpExecption{
 class AuthFailed extends HttpExecption {
   constructor(msg, errorCode) {
     super()
-    this.msg = msg || '授权失败'
+    this.message = msg || '授权失败'
     this.errorCode = errorCode || 10004
     this.status = 401
+  }
+}
+class Forbbiden extends HttpExecption {
+  constructor(msg, errorCode) {
+    super()
+    this.message = msg || '禁止访问'
+    this.errorCode = errorCode || 10006
+    this.status = 403
   }
 }
 module.exports = {
@@ -43,5 +51,6 @@ module.exports = {
   ParameterException,
   AuthError,
   Success,
-  AuthFailed
+  AuthFailed,
+  Forbbiden
 }

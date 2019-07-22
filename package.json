@@ -17,9 +17,11 @@
     "validator": "^11.1.0"
   },
   "devDependencies": {
+    "basic-auth": "^2.0.1",
     "bcrypt": "^3.0.6",
     "bcryptjs": "^2.4.3",
     "cross-env": "^5.2.0",
+    "jsonwebtoken": "^8.5.1",
     "nodemon": "^1.19.1",
     "require-directory": "^2.1.1",
     "sequelize": "^5.10.0"
