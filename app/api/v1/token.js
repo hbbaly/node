@@ -8,6 +8,7 @@ const { TokenValidator } = require('../../../lib/validator')
 const {LoginType} = require('../../../lib/enum.js')
 const { generateToken } = require('../../../core/utils.js')
 const { Auth } = require('../../../middleware/auth.js')
+const { WxManager } = require('../../servers/wx.js')
 router.post('/', async (ctx, next) => {
   const v = await new TokenValidator().validate(ctx)
   let token
@@ -15,8 +16,10 @@ router.post('/', async (ctx, next) => {
       case LoginType.USER_EMAIL:
         token = await emailLogin(v.get('body.account'),v.get('body.secret'))
         break;
-      case LoginType.USER_MOBILE:
-      break;
+      case LoginType.USER_MINI_PROGRAM:
+
+        token = await WxManager.codeToToken(v.get('body.account'))
+        break;
     default:
       break;
   }

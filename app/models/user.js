@@ -21,6 +21,20 @@ class User extends Model {
         }
         return user
     }
+    // 检查数据库里面有没有已经存在用户
+    static async getUserByOpenId (openid) {
+      const user = await User.findOne({
+        where: {
+          openid
+        }
+      })
+      return user
+    }
+    static async createUserByOpenid (openid) {
+      return await User.create({
+        openid
+      })
+    }
 }
 // 初始化用户属性
 User.init({
