@@ -1147,3 +1147,211 @@ module.exports = router
 这里就找到对应的最新的数据了，
 数据序列化，这里使用推荐使用`sequelize`的`setDataValue`
 
+## 点赞功能及增加点赞人数
+
+`lib/validator.js`
+
+参数校验规则
+```js
+function checkLikeType (vals){
+  let type = vals.body.type || vals.path.type || false
+  if (!type) throw new Error('缺少type')
+  type = parseInt(type)
+  if (!LoginType.isThisType(type)) throw new Error('type不符合条件')
+}
+class LikeValidator extends LinValidator {
+  constructor (){
+    super ()
+    this.validateType = checkLikeType
+  }
+}
+```
+`models/favor.js`
+新建favor表，并且点击事件及增加fav_nums人数
+```js
+const { sequelize } = require('../../core/db')
+
+const { Sequelize, Model } = require('sequelize')
+const { LikeError, DislikeError} = require('../../core/http-execption')
+const { Art } = require('./art')
+class Favor extends Model {
+  static async like(art_id, type, uid){
+    // 数据库中存不存在
+    // 首先插入favor一个数据
+    // 更新对应表中的fav_nums
+    const favor = await Favor.findOne({
+      where:{
+        art_id,
+        type,
+        uid
+      }
+    })
+    if (favor) {
+      throw new LikeError('')
+    }
+    // 利用事务来完成
+    return sequelize.transaction(async t => {
+      await Favor.create({
+        art_id,
+        type,
+        uid
+      },{
+        transaction: t
+      })
+      const art = await Art.getData(type, art_id)
+      await art.increment('fav_nums', {
+        by: 1,
+        transaction: t
+      })
+    })
+  }
+}
+// 喜欢的业务表
+Favor.init({
+  uid: Sequelize.INTEGER,
+  art_id: Sequelize.INTEGER,
+  type: Sequelize.INTEGER
+},{
+  sequelize,
+  tableName:'favor'
+})
+module.exports = {
+  Favor
+}
+```
+
+`v1/like.js`
+
+```js
+const Router = require('koa-router')
+const router = new Router({
+  prefix: '/v1/like'
+})
+const {success} = require('../../../lib/helper.js')
+const { Auth } = require('../../../middleware/auth.js')
+const { LikeValidator } = require('../../../lib/validator')
+const { Favor }  = require('../../models/favor')
+router.post('/',new Auth().m, async (ctx, next) => {
+  const v = await new LikeValidator().validate(ctx, {
+    id: 'art_id'
+  })
+  await Favor.like(v.get('body.art_id'), v.get('body.type'), ctx.auth.uid)
+  success()
+})
+
+module.exports = router
+```
+
+**点赞及增加人数已经完成，利用事务来完成多个表格的操作**
+
+## 取消点赞
+
+取消点赞与点赞功能类似
+
+`models/favor.js`
+
+```js
+const { sequelize } = require('../../core/db')
+
+const { Sequelize, Model } = require('sequelize')
+const { LikeError, DislikeError} = require('../../core/http-execption')
+const { Art } = require('./art')
+class Favor extends Model {
+  static async like(art_id, type, uid){
+    // 数据库中存不存在
+    // 首先插入favor一个数据
+    // 更新对应表中的fav_nums
+    const favor = await Favor.findOne({
+      where:{
+        art_id,
+        type,
+        uid
+      }
+    })
+    if (favor) {
+      throw new LikeError('')
+    }
+    return sequelize.transaction(async t => {
+      await Favor.create({
+        art_id,
+        type,
+        uid
+      },{
+        transaction: t
+      })
+      const art = await Art.getData(type, art_id)
+      await art.increment('fav_nums', {
+        by: 1,
+        transaction: t
+      })
+    })
+  }
+  static async disLike(art_id, type, uid){
+    // 数据库中存不存在
+    // 首先插入favor一个数据
+    // 更新对应表中的fav_nums
+    const favor = await Favor.findOne({
+      where:{
+        art_id,
+        type,
+        uid
+      }
+    })
+    if (!favor) {
+      throw new DislikeError()
+    }
+    return sequelize.transaction(async t => {
+      await favor.destroy({
+        force: true,
+        transaction: t
+      })
+      const art = await Art.getData(type, art_id)
+      await art.decrement('fav_nums',{
+        by: 1,
+        transaction: t
+      })
+    })
+  }
+}
+// 喜欢的业务表
+Favor.init({
+  uid: Sequelize.INTEGER,
+  art_id: Sequelize.INTEGER,
+  type: Sequelize.INTEGER
+},{
+  sequelize,
+  tableName:'favor'
+})
+module.exports = {
+  Favor
+}
+```
+
+`v1/like.js`
+
+```js
+const Router = require('koa-router')
+const router = new Router({
+  prefix: '/v1/like'
+})
+const {success} = require('../../../lib/helper.js')
+const { Auth } = require('../../../middleware/auth.js')
+const { LikeValidator } = require('../../../lib/validator')
+const { Favor }  = require('../../models/favor')
+router.post('/',new Auth().m, async (ctx, next) => {
+  const v = await new LikeValidator().validate(ctx, {
+    id: 'art_id'
+  })
+  await Favor.like(v.get('body.art_id'), v.get('body.type'), ctx.auth.uid)
+  success()
+})
+router.post('/cancel',new Auth().m, async (ctx, next) => {
+  const v = await new LikeValidator().validate(ctx, {
+    id: 'art_id'
+  })
+  await Favor.disLike(v.get('body.art_id'), v.get('body.type'), ctx.auth.uid)
+  success()
+})
+
+module.exports = router
+```
