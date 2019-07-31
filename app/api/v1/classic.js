@@ -6,7 +6,7 @@ const { Flow } = require('@models/flow.js')
 const { Auth } = require('@middle/auth.js')
 const { Art } = require('@models/art')
 const { Favor } = require('@models/favor')
-const { PositiveIntegerValidator } = require('@lib/validator')
+const { PositiveIntegerValidator, LikeFavorType } = require('@lib/validator')
 router.get('/lastest', new Auth().m, async (ctx) => {
   const flow = await Flow.findOne({
     order:[
@@ -61,5 +61,20 @@ router.get('/:index/prev', new Auth().m, async (ctx) => {
   art.setDataValue('like_status', likeBool)
 
   ctx.body = art
+})
+// 点赞情况
+router.get('/:type/:id/favor', new Auth().m, async (ctx) => {
+  // 校验参数 id是否为正整数
+  const v = await new LikeFavorType().validate(ctx)
+  const id = v.get('path.id'), type = parseInt(v.get('path.type'))
+  const art = await Art.getData(type, id, true)
+  const likeBool = await Favor.likeIt(id, type, ctx.auth.uid)
+  // 这里需要序列化，否则得不到想要的
+  // 着一种方法不推荐art.dataValues.index= flow.index
+
+  ctx.body = {
+    fav_nums: art.fav_nums,
+    like_status: likeBool
+  }
 })
 module.exports = router
