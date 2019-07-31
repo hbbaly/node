@@ -59,6 +59,16 @@ class Favor extends Model {
       })
     })
   }
+  static async likeIt (art_id, type, uid) {
+    const favor = await Favor.findOne({
+      where:{
+        art_id,
+        type,
+        uid
+      }
+    })
+    return favor ? true : false
+  }
 }
 // 喜欢的业务表
 Favor.init({

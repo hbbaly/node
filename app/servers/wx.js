@@ -21,8 +21,8 @@ class WxManager {
     }
     const openId = result.data.openid
     const user = null
-    user = User.getUserByOpenId(openId)
-    if (!user) user = User.createUserByOpenid(openId)
+    user = await User.getUserByOpenId(openId)
+    if (!user) user = await User.createUserByOpenid(openId)
     const token = await generateToken(user.id, Auth.USER)
     return token
   }

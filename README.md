@@ -1355,3 +1355,141 @@ router.post('/cancel',new Auth().m, async (ctx, next) => {
 
 module.exports = router
 ```
+
+## modules-alias使用
+安装
+```sh
+npm install -D modules-alias
+```
+
+`package.json`
+
+```js
+"_moduleAliases": {
+    "@root": ".",
+    "@api": "./app/api/",
+    "@models": "./app/models/",
+    "@middle": "./middleware/",
+    "@lib": "./lib/",
+    "@core": "./core/",
+    "@config": "./config/"
+  }
+```
+
+`app.js`
+
+```js
+require('module-alias/register')
+```
+
+`v1/like.js`
+```js
+const {success} = require('@lib/helper.js')
+const { Auth } = require('@middle/auth.js')
+const { LikeValidator } = require('@lib/validator')
+const { Favor }  = require('@models/favor') 
+```
+
+## 剔除没有必要的字段
+
+[参考资料](https://demopark.github.io/sequelize-docs-Zh-CN/scopes.html)
+
+`core/db.js`
+```js
+...
+createdAt: 'created_at',
+updatedAt: 'updated_at',
+deletedAt: 'deleted_at',
+underscored: true ,  // 吧所有驼峰转化为下划线
+scopes:{
+  'bh':{
+    attributes: {
+      exclude: ['updated_at',       'deleted_at','created_at']
+    },
+  }
+}
+```
+
+`models/art.js`
+
+```js
+class Art {
+  static async getData (type, id, useScope){
+    const finder = {
+      where:{
+        id: id
+      }
+    }
+    let art = null, scoped = useScope ? 'bh' : null
+    switch(type){
+      case 100:
+        art = await Movie.scope(scoped).findOne(finder)
+        break;
+      case 200: 
+        art = await Music.scope(scoped).findOne(finder)
+        break;
+      case 300:
+        art = await Sentence.scope(scoped).findOne(finder)
+        break;
+      case 400:
+        break;
+      default:
+        break;
+    }
+    return art
+  }
+}
+```
+
+使用`Art.getData()`传递第三个参数。标示是否使用`scope`
+
+## 查询下一期
+
+`v1/classic.js`
+```js
+router.get('/:index/next', new Auth().m, async (ctx) => {
+  // 校验参数 id是否为正整数
+  const v = await new PositiveIntegerValidator().validate(ctx, {
+    id: 'index'
+  })
+  const index = v.get('path.index')
+  const flow = await Flow.findOne({
+    where:{
+      index: index + 1
+    }
+  })
+  const art = await Art.getData(flow.type, flow.art_id, true)
+  const likeBool = await Favor.likeIt(flow.art_id, flow.type, ctx.auth.uid)
+  // 这里需要序列化，否则得不到想要的
+  // 着一种方法不推荐art.dataValues.index= flow.index
+  art.setDataValue('index', flow.index)
+  art.setDataValue('like_status', likeBool)
+
+  ctx.body = art
+})
+```
+
+## 查询上一期
+
+```js
+router.get('/:index/prev', new Auth().m, async (ctx) => {
+  // 校验参数 id是否为正整数
+  const v = await new PositiveIntegerValidator().validate(ctx, {
+    id: 'index'
+  })
+  const index = v.get('path.index')
+  const flow = await Flow.findOne({
+    where:{
+      index: index - 1
+    }
+  })
+  const art = await Art.getData(flow.type, flow.art_id, true)
+  const likeBool = await Favor.likeIt(flow.art_id, flow.type, ctx.auth.uid)
+  // 这里需要序列化，否则得不到想要的
+  // 着一种方法不推荐art.dataValues.index= flow.index
+  art.setDataValue('index', flow.index)
+  art.setDataValue('like_status', likeBool)
+
+  ctx.body = art
+})
+```

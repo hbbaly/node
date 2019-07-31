@@ -15,7 +15,14 @@ const sequelize = new Sequelize(dbName, user, password,{
     createdAt: 'created_at',
     updatedAt: 'updated_at',
     deletedAt: 'deleted_at',
-    underscored: true   // 吧所有驼峰转化为下划线
+    underscored: true ,  // 吧所有驼峰转化为下划线
+    scopes:{
+      'bh':{
+        attributes: {
+          exclude: ['updated_at', 'deleted_at','created_at']
+        },
+      }
+    }
   }
 })
 // force 千万不要设置为true， 他会先删除表，在创建表，原来表里面的内容就会丢失
