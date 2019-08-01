@@ -63,6 +63,14 @@ class DislikeError extends HttpExecption {
       this.errorCode = errorCode || 60002
   }
 }
+class notFound extends HttpExecption {
+  constructor(msg, errorCode) {
+      super()
+      this.status = 404
+      this.message = msg || "没有找到"
+      this.errorCode = errorCode || 404
+  }
+}
 module.exports = {
   HttpExecption,
   ParameterException,
@@ -71,5 +79,6 @@ module.exports = {
   AuthFailed,
   Forbbiden,
   DislikeError,
-  LikeError
+  LikeError,
+  notFound
 }

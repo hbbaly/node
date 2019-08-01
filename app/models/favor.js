@@ -1,7 +1,7 @@
 const { sequelize } = require('../../core/db')
 
-const { Sequelize, Model } = require('sequelize')
-const { LikeError, DislikeError} = require('../../core/http-execption')
+const { Sequelize, Model,Op } = require('sequelize')
+const { LikeError, DislikeError, notFound} = require('../../core/http-execption')
 const { Art } = require('./art')
 class Favor extends Model {
   static async like(art_id, type, uid){
@@ -68,6 +68,29 @@ class Favor extends Model {
       }
     })
     return favor ? true : false
+  }
+  static async getMyClassicFavor (uid) {
+    // 全部的点赞
+    const favor = await Favor.findAll({
+      where:{
+        uid,
+        type:{
+          [Op.not]:400,
+        }
+      }
+    })
+    console.log(favor,'--------')
+    if (!favor) throw new notFound()
+    // 获取每个对应的详情
+    let classicFavorObj = {
+      100: [],
+      200: [],
+      300: []
+    }
+    for (let item of favor) {
+      classicFavorObj[item.type].push(item.art_id)
+    }
+    return await Art.getList(classicFavorObj)
   }
 }
 // 喜欢的业务表
