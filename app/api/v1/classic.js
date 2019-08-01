@@ -82,4 +82,18 @@ router.get('/favor', new Auth().m, async ctx => {
 
   ctx.body = await Favor.getMyClassicFavor(ctx.auth.uid)
 })
+router.get('/:type/:id', new Auth().m, async ctx => {
+  // 校验参数 id是否为正整数
+  const v = await new LikeFavorType().validate(ctx)
+  const id = v.get('path.id'), type = parseInt(v.get('path.type'))
+  const art = await Art.getDetail(type, id, true)
+  const likeBool = await Favor.likeIt(id, type, ctx.auth.uid)
+  // 这里需要序列化，否则得不到想要的
+  // 着一种方法不推荐art.dataValues.index= flow.index
+  art.setDataValue('like_status', likeBool)
+
+  ctx.body = {
+    art: art
+  }
+})
 module.exports = router

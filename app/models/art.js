@@ -65,6 +65,10 @@ class Art {
     }
     return art
   }
+  static async getDetail (type, id, uid){
+    const art = await Art.getData(type, id, true)
+    return art
+  }
 }
 module.exports = {
   Art
