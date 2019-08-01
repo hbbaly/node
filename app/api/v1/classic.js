@@ -13,7 +13,7 @@ router.get('/lastest', new Auth().m, async (ctx) => {
       ['index','DESC']
     ]
   })
-  const art = await Art.getData(flow.type, flow.art_id, true)
+  const art = await new Art(flow.type, flow.art_id).getData(true)
   const likeBool = await Favor.likeIt(flow.art_id, flow.type, ctx.auth.uid)
   // 这里需要序列化，否则得不到想要的
   // 着一种方法不推荐art.dataValues.index= flow.index
@@ -33,7 +33,7 @@ router.get('/:index/next', new Auth().m, async (ctx) => {
       index: index + 1
     }
   })
-  const art = await Art.getData(flow.type, flow.art_id, true)
+  const art = await new Art(flow.type, flow.art_id).getData(true)
   const likeBool = await Favor.likeIt(flow.art_id, flow.type, ctx.auth.uid)
   // 这里需要序列化，否则得不到想要的
   // 着一种方法不推荐art.dataValues.index= flow.index
@@ -53,7 +53,7 @@ router.get('/:index/prev', new Auth().m, async (ctx) => {
       index: index - 1
     }
   })
-  const art = await Art.getData(flow.type, flow.art_id, true)
+  const art = await new Art(flow.type, flow.art_id).getData(true)
   const likeBool = await Favor.likeIt(flow.art_id, flow.type, ctx.auth.uid)
   // 这里需要序列化，否则得不到想要的
   // 着一种方法不推荐art.dataValues.index= flow.index
@@ -67,7 +67,7 @@ router.get('/:type/:id/favor', new Auth().m, async (ctx) => {
   // 校验参数 id是否为正整数
   const v = await new LikeFavorType().validate(ctx)
   const id = v.get('path.id'), type = parseInt(v.get('path.type'))
-  const art = await Art.getData(type, id, true)
+  const art = await new Art(type, id).getData(true)
   const likeBool = await Favor.likeIt(id, type, ctx.auth.uid)
   // 这里需要序列化，否则得不到想要的
   // 着一种方法不推荐art.dataValues.index= flow.index
@@ -86,7 +86,7 @@ router.get('/:type/:id', new Auth().m, async ctx => {
   // 校验参数 id是否为正整数
   const v = await new LikeFavorType().validate(ctx)
   const id = v.get('path.id'), type = parseInt(v.get('path.type'))
-  const art = await Art.getDetail(type, id, true)
+  const art = await new Art(type, id).getDetail(true)
   const likeBool = await Favor.likeIt(id, type, ctx.auth.uid)
   // 这里需要序列化，否则得不到想要的
   // 着一种方法不推荐art.dataValues.index= flow.index

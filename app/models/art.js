@@ -4,29 +4,18 @@ const {
 } = require('lodash')
 const { Movie, Music, Sentence} = require('./classic')
 class Art {
-  static async getData (type, id, useScope){
+  constructor (type, id){
+    this.type = type
+    this.id = id
+  }
+  async getData (useScope){
     const finder = {
       where:{
-        id: id
+        id: this.id
       }
     }
-    let art = null, scoped = useScope ? 'bh' : null
-    switch(type){
-      case 100:
-        art = await Movie.scope(scoped).findOne(finder)
-        break;
-      case 200: 
-        art = await Music.scope(scoped).findOne(finder)
-        break;
-      case 300:
-        art = await Sentence.scope(scoped).findOne(finder)
-        break;
-      case 400:
-        break;
-      default:
-        break;
-    }
-    return art
+    let scoped = useScope ? 'bh' : null
+    return await Art.__selectModel(this.type, finder, scoped)
   }
   static async getList (list) {
     let arts = []
@@ -40,7 +29,7 @@ class Art {
     return flatten(arts)
   }
   static async __getListByIds (ids, type, useScope){
-    let art = [], scoped = useScope ? 'bh' : null
+    let scoped = useScope ? 'bh' : null
     const finder = {
       where:{
         id: {
@@ -48,6 +37,14 @@ class Art {
         }
       }
     }
+    return await Art.__selectModel(type, finder, scoped)
+  }
+  async getDetail (uid){
+    const art = await new Art(this.type, this.id).getData(true)
+    return art
+  }
+  static async __selectModel (type, finder, scoped){
+    let art = []
     switch(type){
       case 100:
         art = await Movie.scope(scoped).findOne(finder)
@@ -63,10 +60,6 @@ class Art {
       default:
         break;
     }
-    return art
-  }
-  static async getDetail (type, id, uid){
-    const art = await Art.getData(type, id, true)
     return art
   }
 }
