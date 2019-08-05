@@ -10,8 +10,10 @@ const { generateToken } = require('../../../core/utils.js')
 const { Auth } = require('../../../middleware/auth.js')
 const { WxManager } = require('../../servers/wx.js')
 router.post('/', async (ctx, next) => {
+  console.log(ctx.request.body.type, 'type')
+
   const v = await new TokenValidator().validate(ctx)
-  let token
+  let token;
   switch (v.get('body.type')) {
       case LoginType.USER_EMAIL:
         token = await emailLogin(v.get('body.account'),v.get('body.secret'))

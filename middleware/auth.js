@@ -12,6 +12,7 @@ class Auth {
   get m () {
     return async (ctx, next) => {
       const userToken = basicAuth(ctx.req)
+      console.log(userToken, 'hbb')
       let errMsg = 'token不合法'
       let decode
       // 验证token
