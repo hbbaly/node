@@ -19,12 +19,15 @@ class Auth {
       if (!userToken || !userToken.name) {
         throw new Forbbiden(errMsg)
       }
+      console.log(config.secret.secretKey, 'config.secret.secretKey')
+
       try {
-        decode = jwt.verify(userToken.name, config.secret.secretKey)
+        const secretKey = config.secret.secretKey,
+        token = userToken.name;
+        decode = jwt.verify(token, secretKey)
         console.log(decode, 'decodedecodedecodedecodedecode')
       } catch (error) {
         // token过期
-        console.log(error, '============')
         if (error.name === 'TokenExpiredError') errMsg = 'token已过期'
         //token不合法
         throw new Forbbiden(errMsg)

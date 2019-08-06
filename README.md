@@ -1493,3 +1493,159 @@ router.get('/:index/prev', new Auth().m, async (ctx) => {
   ctx.body = art
 })
 ```
+## 搜索
+
+`models/book.js`
+
+```js
+static async searchBook (q, start = 0, count = 10, summary = 1) {
+    const url = util.format(config.yushu.keywordUrl, encodeURI(q), count, start, summary)
+    const result = await axios.get(url)
+    return result.data
+  }
+```
+
+`v1/book.js`
+
+```js
+router.get('/search', async ctx => {
+  const v = await new SearchValidator().validate(ctx)
+    const result = await Book.searchBook(
+        v.get('query.q'), v.get('query.start'), v.get('query.count'))
+    ctx.body = result
+})
+```
+
+## 书籍点赞的个数
+
+`models/book.js`
+
+```js
+static async getFavorCount (uid) {
+    const count = await Favor.count({
+      where:{
+        type: 400,
+        uid
+      }
+    })
+    return count
+  }
+```
+
+`v1/book.js`
+
+```js
+router.get('/favor/count', new Auth().m, async ctx => {
+  const count = await Book.getFavorCount(ctx.auth.uid)
+  ctx.body = {count}
+})
+```
+
+## 获取书籍本人点赞情况
+
+`models/favor.js`
+
+```js
+static async getBookFavor (id, uid) {
+    const favorNums = await Favor.count({
+      where: {
+          art_id: id,
+          type:400
+      }
+  })
+  const myFavor = await Favor.findOne({
+      where:{
+          art_id:id,
+          uid,
+          type:400
+      }
+  })
+  return {
+      fav_nums:favorNums,
+      like_status:myFavor?1:0
+  }
+  }
+```
+
+`v1/book.js`
+```js
+router.get('/:id/favor', new Auth().m, async ctx => {
+  const v =await new PositiveIntegerValidator().validate(ctx)
+  const favor = await Favor.getBookFavor(
+      v.get('path.id'), ctx.auth.uid)
+  ctx.body = favor
+})
+```
+
+## 获取书籍相关评论
+
+`models/book-comment.js`
+```js
+const {sequelize} = require('../../core/db')
+const {
+    Sequelize,
+    Model
+} = require('sequelize')
+
+class Comment extends Model{
+  static async getComments (id){
+    const comments = await Comment.findAll({
+      where: {
+          book_id: id
+      }
+  })
+  return comments
+  }
+}
+Comment.init({
+  content:Sequelize.STRING(12),
+  nums:{
+      type:Sequelize.INTEGER,
+      defaultValue:0
+  },
+  book_id:Sequelize.INTEGER,
+  // exclude:['book_id','id']
+},{
+  sequelize,
+  tableName:'comment'
+})
+module.exports = {
+  Comment
+}
+```
+
+`v1/book.js`
+
+```js
+router.get('/:id/comments', new Auth().m, async ctx => {
+  const v =await new PositiveIntegerValidator().validate(ctx)
+  const comment = await Comment.getComments(
+      v.get('path.id'))
+  ctx.body = comment
+})
+```
+
+## 去除返回数据不要的字段
+
+`core/db.js`
+
+```js
+Model.prototype.toJSON = function(){
+  // let data = this.dataValues
+  let data = clone(this.dataValues)
+  // unset(data, 'updated_at')
+  // unset(data, 'created_at')
+  // unset(data, 'deleted_at')
+
+  if(isArray(this.exclude)){
+      this.exclude.forEach(
+          (value)=>{
+              unset(data,value)
+          }
+      )
+  }
+  return data
+}
+```
+
+循环删除`exclude`里面的包含字段，返回删除后的数据

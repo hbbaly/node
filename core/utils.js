@@ -49,6 +49,8 @@ const generateToken = function(uid, scope){
     },secretKey,{
         expiresIn
     })
+    // const object = jwt.verify(token, secretKey)
+    // console.log(object, 'hbblay1314')
     return token
 }
 

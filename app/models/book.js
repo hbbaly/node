@@ -3,6 +3,7 @@ const { Sequelize, Model, Op } = require('sequelize')
 const util = require('util')
 const axios = require('axios')
 const config = require('@config/index.js')
+const { Favor } = require('./favor')
 class Book extends Model {
   constructor(id){
     super()
