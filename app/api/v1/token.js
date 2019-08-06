@@ -19,7 +19,6 @@ router.post('/', async (ctx, next) => {
         token = await emailLogin(v.get('body.account'),v.get('body.secret'))
         break;
       case LoginType.USER_MINI_PROGRAM:
-
         token = await WxManager.codeToToken(v.get('body.account'))
         break;
     default:
@@ -31,7 +30,7 @@ router.post('/', async (ctx, next) => {
   // success()
 })
 async function emailLogin(account, secret) {
-    const user = await User.verifyEmailPassword(account, secret)
-    return generateToken(user.id, Auth.USER)
+  const user = await User.verifyEmailPassword(account, secret)
+  return generateToken(user.id, Auth.USER)
 }
 module.exports = router

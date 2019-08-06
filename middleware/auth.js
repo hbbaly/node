@@ -11,8 +11,8 @@ class Auth {
   }
   get m () {
     return async (ctx, next) => {
+      console.log(ctx.req)
       const userToken = basicAuth(ctx.req)
-      console.log(userToken, 'hbb')
       let errMsg = 'token不合法'
       let decode
       // 验证token
@@ -21,9 +21,11 @@ class Auth {
       }
       try {
         decode = jwt.verify(userToken.name, config.secret.secretKey)
+        console.log(decode, 'decodedecodedecodedecodedecode')
       } catch (error) {
         // token过期
-        if (error.ame === 'TokenExpiredError') errMsg = 'token已过期'
+        console.log(error, '============')
+        if (error.name === 'TokenExpiredError') errMsg = 'token已过期'
         //token不合法
         throw new Forbbiden(errMsg)
       }
